@@ -2,6 +2,7 @@
 * Using this example as base starting point: http://bl.ocks.org/stepheneb/1182434
 * and making my own additions/customizations
 */
+
 registerKeyboardHandler = function(callback) {
   var callback = callback;
   d3.select(window).on("keydown", callback);  
@@ -59,8 +60,15 @@ SimpleGraph = function(elemid, options) {
       yrange4 = yrange2 / 2,
       datacount = this.size.width/30;
 
-  this.points = d3.range(datacount).map(function(i) { 
-    return { x: i * xrange / datacount, y: this.options.ymin + yrange4 + Math.random() * yrange2 }; 
+  // this.points = d3.range(datacount).map(function(i) { 
+  //   return { x: i * xrange / datacount, y: this.options.ymin + yrange4 + Math.random() * yrange2 }; 
+  // }, self);
+
+  /*
+  * Using pulsar_data_test.json values instead of the randomly generated ones from the example
+  */
+  this.points = d3.range(DATASET.length).map(function(i) {
+    return { x: DATASET[i]["Period"], y: DATASET[i]["Period Derivative"] };
   }, self);
 
   this.vis = d3.select(this.chart).append("svg")
