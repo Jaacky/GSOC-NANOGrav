@@ -1,5 +1,6 @@
 /*
 * Using this example as base starting point: http://bl.ocks.org/stepheneb/1182434
+* and making my own additions/customizations
 */
 registerKeyboardHandler = function(callback) {
   var callback = callback;
@@ -137,7 +138,7 @@ SimpleGraph.prototype.plot_drag = function() {
     registerKeyboardHandler(self.keydown());
     d3.select('body').style("cursor", "move");
     if (d3.event.altKey) {
-      var p = d3.svg.mouse(self.vis.node());
+      var p = d3.mouse(self.vis.node());
       var newpoint = {};
       newpoint.x = self.x.invert(Math.max(0, Math.min(self.size.width,  p[0])));
       newpoint.y = self.y.invert(Math.max(0, Math.min(self.size.height, p[1])));
@@ -160,7 +161,7 @@ SimpleGraph.prototype.update = function() {
   var lines = this.vis.select("path").attr("d", this.line(this.points));
         
   var circle = this.vis.select("svg").selectAll("circle")
-      .data(this.points, function(d) { return d; });
+      .data(this.points);
 
   circle.enter().append("circle")
       .attr("class", function(d) { return d === self.selected ? "selected" : null; })
@@ -199,7 +200,7 @@ SimpleGraph.prototype.datapoint_drag = function() {
 SimpleGraph.prototype.mousemove = function() {
   var self = this;
   return function() {
-    var p = d3.svg.mouse(self.vis[0][0]),
+    var p = d3.mouse(self.vis[0][0]),
         t = d3.event.changedTouches;
     
     if (self.dragged) {
@@ -368,7 +369,7 @@ SimpleGraph.prototype.xaxis_drag = function() {
   var self = this;
   return function(d) {
     document.onselectstart = function() { return false; };
-    var p = d3.svg.mouse(self.vis[0][0]);
+    var p = d3.mouse(self.vis[0][0]);
     self.downx = self.x.invert(p[0]);
   }
 };
@@ -377,7 +378,7 @@ SimpleGraph.prototype.yaxis_drag = function(d) {
   var self = this;
   return function(d) {
     document.onselectstart = function() { return false; };
-    var p = d3.svg.mouse(self.vis[0][0]);
+    var p = d3.mouse(self.vis[0][0]);
     self.downy = self.y.invert(p[1]);
   }
 };
