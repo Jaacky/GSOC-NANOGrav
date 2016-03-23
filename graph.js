@@ -8,7 +8,7 @@ registerKeyboardHandler = function(callback) {
   d3.select(window).on("keydown", callback);  
 };
 
-SimpleGraph = function(elemid, options) {
+Graph = function(elemid, options) {
   var self = this;
   this.chart = document.getElementById(elemid);
   this.cx = this.chart.clientWidth;
@@ -18,6 +18,17 @@ SimpleGraph = function(elemid, options) {
   this.options.xmin = options.xmin || 0;
   this.options.ymax = options.ymax || 10;
   this.options.ymin = options.ymin || 0;
+  /*
+  * Using pulsar_data_test.json values instead of the randomly generated ones from the example
+  */
+  this.points = d3.range(DATASET.length).map(function(i) {
+    return { x: DATASET[i]["Period"], y: DATASET[i]["Period Derivative"] };
+  }, self);
+
+  this.options.xmax = d3.max(this.points, function(d) { return d['x'] });
+  this.options.xmin = d3.min(this.points, function(d) { return d['x'] });
+  this.options.ymax = d3.max(this.points, function(d) { return d['y'] });
+  this.options.ymin = d3.min(this.points, function(d) { return d['y'] });
 
   this.padding = {
      "top":    this.options.title  ? 40 : 20,
@@ -40,7 +51,7 @@ SimpleGraph = function(elemid, options) {
   this.downx = Math.NaN;
 
   // y-scale (inverted domain)
-  this.y = d3.scale.linear()
+  this.y = d3.scale.log()
       .domain([this.options.ymax, this.options.ymin])
       .nice()
       .range([0, this.size.height])
@@ -57,19 +68,12 @@ SimpleGraph = function(elemid, options) {
 
   var xrange =  (this.options.xmax - this.options.xmin),
       yrange2 = (this.options.ymax - this.options.ymin) / 2,
-      yrange4 = yrange2 / 2,
-      datacount = this.size.width/30;
+      yrange4 = yrange2 / 2;
+      // datacount = this.size.width/30;
 
   // this.points = d3.range(datacount).map(function(i) { 
   //   return { x: i * xrange / datacount, y: this.options.ymin + yrange4 + Math.random() * yrange2 }; 
   // }, self);
-
-  /*
-  * Using pulsar_data_test.json values instead of the randomly generated ones from the example
-  */
-  this.points = d3.range(DATASET.length).map(function(i) {
-    return { x: DATASET[i]["Period"], y: DATASET[i]["Period Derivative"] };
-  }, self);
 
   this.vis = d3.select(this.chart).append("svg")
       .attr("width",  this.cx)
@@ -137,10 +141,10 @@ SimpleGraph = function(elemid, options) {
 };
   
 //
-// SimpleGraph methods
+// Graph methods
 //
 
-SimpleGraph.prototype.plot_drag = function() {
+Graph.prototype.plot_drag = function() {
   var self = this;
   return function() {
     registerKeyboardHandler(self.keydown());
@@ -164,7 +168,7 @@ SimpleGraph.prototype.plot_drag = function() {
   }
 };
 
-SimpleGraph.prototype.update = function() {
+Graph.prototype.update = function() {
   var self = this;
   var lines = this.vis.select("path").attr("d", this.line(this.points));
         
@@ -194,7 +198,7 @@ SimpleGraph.prototype.update = function() {
   }
 }
 
-SimpleGraph.prototype.datapoint_drag = function() {
+Graph.prototype.datapoint_drag = function() {
   var self = this;
   return function(d) {
     registerKeyboardHandler(self.keydown());
@@ -205,7 +209,7 @@ SimpleGraph.prototype.datapoint_drag = function() {
   }
 };
 
-SimpleGraph.prototype.mousemove = function() {
+Graph.prototype.mousemove = function() {
   var self = this;
   return function() {
     var p = d3.mouse(self.vis[0][0]),
@@ -250,7 +254,7 @@ SimpleGraph.prototype.mousemove = function() {
   }
 };
 
-SimpleGraph.prototype.mouseup = function() {
+Graph.prototype.mouseup = function() {
   var self = this;
   return function() {
     document.onselectstart = function() { return true; };
@@ -274,7 +278,7 @@ SimpleGraph.prototype.mouseup = function() {
   }
 }
 
-SimpleGraph.prototype.keydown = function() {
+Graph.prototype.keydown = function() {
   var self = this;
   return function() {
     if (!self.selected) return;
@@ -291,8 +295,9 @@ SimpleGraph.prototype.keydown = function() {
   }
 };
 
-SimpleGraph.prototype.redraw = function() {
+Graph.prototype.redraw = function() {
   var self = this;
+  console.log(self.vis);
   return function() {
     var tx = function(d) { 
       return "translate(" + self.x(d) + ",0)"; 
@@ -373,7 +378,7 @@ SimpleGraph.prototype.redraw = function() {
   }  
 }
 
-SimpleGraph.prototype.xaxis_drag = function() {
+Graph.prototype.xaxis_drag = function() {
   var self = this;
   return function(d) {
     document.onselectstart = function() { return false; };
@@ -382,7 +387,7 @@ SimpleGraph.prototype.xaxis_drag = function() {
   }
 };
 
-SimpleGraph.prototype.yaxis_drag = function(d) {
+Graph.prototype.yaxis_drag = function(d) {
   var self = this;
   return function(d) {
     document.onselectstart = function() { return false; };
