@@ -51,17 +51,25 @@ Graph = function(elemid, options) {
   this.options.ymax = d3.max(this.points, function(d) { return d['y'] });
   this.options.ymin = d3.min(this.points, function(d) { return d['y'] });
 
+  this.options.RMmax = d3.max(this.points, function(d) { return d['RMS'] });
+  this.options.RMmin = d3.min(this.points, function(d) { return d['RMS'] });
+
   this.padding = {
      "top":    this.options.title  ? 40 : 20,
      "right":                 30,
      "bottom": this.options.xlabel ? 60 : 10,
-     "left":   this.options.ylabel ? 70 : 45
+     "left":   this.options.ylabel ? 100 : 45
   };
 
   this.size = {
     "width":  this.cx - this.padding.left - this.padding.right,
     "height": this.cy - this.padding.top  - this.padding.bottom
   };
+
+  // RMs scale
+  this.rm = d3.scale.linear()
+    .domain([this.options.RMmin, this.options.RMmax])
+    .range([6, 10]);
 
   // x-scale
   this.x = d3.scale.linear()
@@ -111,6 +119,11 @@ Graph = function(elemid, options) {
       .on("touchstart.drag", self.plot_drag())
       this.plot.call(d3.behavior.zoom().x(this.x).y(this.y).on("zoom", this.redraw()));
 
+  this.tooltip = d3.select(this.chart).append("div")
+      .attr("class", "tooltip")
+      .style("fill", "E8e8e8")
+      .style("opacity", 0);
+
   this.vis.append("svg")
       .attr("top", 0)
       .attr("left", 0)
@@ -149,7 +162,7 @@ Graph = function(elemid, options) {
         .attr("class", "axis")
         .text(this.options.ylabel)
         .style("text-anchor","middle")
-        .attr("transform","translate(" + -40 + " " + this.size.height/2+") rotate(-90)");
+        .attr("transform","translate(" + -70 + " " + this.size.height/2+") rotate(-90)");
   }
 
   d3.select(this.chart)
@@ -192,7 +205,7 @@ Graph.prototype.plot_drag = function() {
 Graph.prototype.update = function() {
   var self = this;
   var lines = this.vis.select("path").attr("d", this.line(this.points));
-        
+  
   var circle = this.vis.select("svg").selectAll("circle")
       .data(this.points);
 
@@ -200,8 +213,24 @@ Graph.prototype.update = function() {
       .attr("class", function(d) { return d === self.selected ? "selected" : null; })
       .attr("cx",    function(d) { return self.x(d.x); })
       .attr("cy",    function(d) { return self.y(d.y); })
-      .attr("r", 5.0)
+      .attr("r", function(d) { return self.rm(d.RMS); })
+      .style("fill", function(d) { return d["Binary"] == "Y" ? "YellowGreen" : "Steelblue" })
       .style("cursor", "pointer")
+      .on("mouseover", function(d) {
+          self.tooltip.style("display", "block");    
+          self.tooltip.transition()
+            .duration(200)
+            .style("opacity", 0.9);  
+          self.tooltip.html(formatData(d))
+            .style("left", (d3.event.pageX) + "px")
+            .style("top", (d3.event.pageY - 28) + "px");
+      })                  
+      .on("mouseout", function(d) {
+          self.tooltip.transition()
+            .duration(600)
+            .style("opacity", 0);
+          self.tooltip.style("display", "none");       
+      })
       .on("click", self.datapoint_select());
       // .style("cursor", "ns-resize");
       // .on("mousedown.drag",  self.datapoint_drag())
@@ -432,3 +461,17 @@ Graph.prototype.yaxis_drag = function(d) {
     self.downy = self.y.invert(p[1]);
   }
 };
+
+function formatData(datapoint) {
+  var string = "";
+  string += "<p>Pulsar: " + datapoint["Pulsar"] + "</p>";
+  string += "<p>TOAs: " + datapoint["TOAs"] + "</p>";
+  string += "<p>Raw Profile: " + datapoint["Raw Profiles"] + "</p>";
+  string += "<p>Period: " + datapoint["x"] + "</p>";
+  string += "<p>Period Derivative: " + datapoint["y"] + "</p>";
+  string += "<p>DM: " + datapoint["DM"] + "</p>";
+  string += "<p>RMS: " + datapoint["RMS"] + "</p>";
+  string += "<p>Binary: " + datapoint["Binary"] + "</p>";
+
+  return string;
+}
