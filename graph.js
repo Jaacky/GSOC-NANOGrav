@@ -14,17 +14,38 @@ Graph = function(elemid, options) {
   this.cx = this.chart.clientWidth;
   this.cy = this.chart.clientHeight;
   this.options = options || {};
-  this.options.xmax = options.xmax || 30;
-  this.options.xmin = options.xmin || 0;
-  this.options.ymax = options.ymax || 10;
-  this.options.ymin = options.ymin || 0;
+  // this.options.xmax = options.xmax || 30;
+  // this.options.xmin = options.xmin || 0;
+  // this.options.ymax = options.ymax || 10;
+  // this.options.ymin = options.ymin || 0;
+
   /*
   * Using pulsar_data_test.json values instead of the randomly generated ones from the example
+    "Pulsar": "1853+1303",
+    "TOAs": 1369,
+    "Raw Profiles": 520,
+    "Period": 0.0040918,
+    "Period Derivative": 8.7164e-21,
+    "DM": 30.57,
+    "RMS": 1.23,
+    "Binary": "Y"
   */
   this.points = d3.range(DATASET.length).map(function(i) {
-    return { x: DATASET[i]["Period"], y: DATASET[i]["Period Derivative"] };
+    return {
+            x: DATASET[i]["Period"],
+            y: DATASET[i]["Period Derivative"],
+            Pulsar: DATASET[i]["Pulsar"],
+            TOAs: DATASET[i]["TOAs"],
+            "Raw Profiles": DATASET[i]["Raw Profiles"],
+            DM: DATASET[i]["DM"],
+            RMS: DATASET[i]["RMS"],
+            Binary: DATASET[i]["Binary"] 
+          };
   }, self);
 
+  /*
+  * Instead of using the input min and max, parse through data and find the min and max
+  */
   this.options.xmax = d3.max(this.points, function(d) { return d['x'] });
   this.options.xmin = d3.min(this.points, function(d) { return d['x'] });
   this.options.ymax = d3.max(this.points, function(d) { return d['y'] });
@@ -95,11 +116,11 @@ Graph = function(elemid, options) {
       .attr("left", 0)
       .attr("width", this.size.width)
       .attr("height", this.size.height)
-      .attr("viewBox", "0 0 "+this.size.width+" "+this.size.height)
-      .attr("class", "line")
-      .append("path")
-          .attr("class", "line")
-          .attr("d", this.line(this.points));
+      .attr("viewBox", "0 0 "+this.size.width+" "+this.size.height);
+      // .attr("class", "line")
+      // .append("path")
+      //     .attr("class", "line")
+      //     .attr("d", this.line(this.points));
 
   // add Chart Title
   if (this.options.title) {
@@ -179,10 +200,12 @@ Graph.prototype.update = function() {
       .attr("class", function(d) { return d === self.selected ? "selected" : null; })
       .attr("cx",    function(d) { return self.x(d.x); })
       .attr("cy",    function(d) { return self.y(d.y); })
-      .attr("r", 10.0)
-      .style("cursor", "ns-resize")
-      .on("mousedown.drag",  self.datapoint_drag())
-      .on("touchstart.drag", self.datapoint_drag());
+      .attr("r", 5.0)
+      .style("cursor", "pointer")
+      .on("click", self.datapoint_select());
+      // .style("cursor", "ns-resize");
+      // .on("mousedown.drag",  self.datapoint_drag())
+      // .on("touchstart.drag", self.datapoint_drag());
 
   circle
       .attr("class", function(d) { return d === self.selected ? "selected" : null; })
@@ -198,16 +221,31 @@ Graph.prototype.update = function() {
   }
 }
 
-Graph.prototype.datapoint_drag = function() {
+/*
+* Addition: Graph data point select event handler
+*/
+Graph.prototype.datapoint_select = function() {
   var self = this;
   return function(d) {
     registerKeyboardHandler(self.keydown());
     document.onselectstart = function() { return false; };
-    self.selected = self.dragged = d;
+    self.selected = d;
+    console.log(d);
     self.update();
-    
   }
-};
+}
+
+// Don't need to be able to drag data points
+// Graph.prototype.datapoint_drag = function() {
+//   var self = this;
+//   return function(d) {
+//     registerKeyboardHandler(self.keydown());
+//     document.onselectstart = function() { return false; };
+//     self.selected = self.dragged = d;
+//     self.update();
+    
+//   }
+// };
 
 Graph.prototype.mousemove = function() {
   var self = this;
@@ -297,7 +335,6 @@ Graph.prototype.keydown = function() {
 
 Graph.prototype.redraw = function() {
   var self = this;
-  console.log(self.vis);
   return function() {
     var tx = function(d) { 
       return "translate(" + self.x(d) + ",0)"; 
@@ -308,8 +345,8 @@ Graph.prototype.redraw = function() {
     stroke = function(d) { 
       return d ? "#ccc" : "#666"; 
     },
-    fx = self.x.tickFormat(10),
-    fy = self.y.tickFormat(10);
+    fx = self.x.tickFormat(5),
+    fy = self.y.tickFormat(5);
 
     // Regenerate x-ticks…
     var gx = self.vis.selectAll("g.x")
