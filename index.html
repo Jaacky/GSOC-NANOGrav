@@ -10,8 +10,9 @@
       body { font: 13px sans-serif; }
       rect { fill: #fff; }
       p { margin: 0; }
-      #legend { margin-top: 10px; width: 25%; border: 1px solid black; padding: 15px;}
-      .legendDescription { margin-top: 5px; }
+      #legend { margin-top: 10px; width: 25%; border: 1px solid black; padding: 15px; }
+      ul.legendDescriptionList { list-style-type: disc; margin-top: 10px; padding-left: 15px;}
+      li.legendDescription { display: list-item; margin-top: 5px; padding: 0; }
       .legendItem { width: 100%; }
       .legendItem p { padding: 5px 0px 5px 5px; }
       #binary { background-color: rgba(154, 205, 50, 0.6); }
@@ -63,11 +64,14 @@
     <div id="legend">
       <div class="legendItem" id="binary"><p>Binary</p></div>
       <div class="legendItem" id="not_binary"><p>Not binary</p></div>
-      <p class="legendDescription">Data points sizes are determined by their RMs.</p>
-      <p class="legendDescription">Graph is initially scaled to fit all the datapoints within view.</p>
-      <p class="legendDescription">Click on an axis and drag to scale that axis.</p>
-      <p class="legendDescription">Click and drag on graph to move graph around.</p>
-      <p class="legendDescription">Hover over a point to see more details.</p>
+      <ul class="legendDescriptionList">
+        <li class="legendDescription">Data points sizes are determined by their RMs.</li>
+        <li class="legendDescription">Graph is initially scaled to fit all the datapoints within view.</li>
+        <li class="legendDescription">Click on an axis and drag to scale that axis.</li>
+        <li class="legendDescription">Click and drag on graph to move graph around.</li>
+        <li class="legendDescription">Hover over a point to see more details.</li>
+      </ul>
+
     </div>
     <script type="text/javascript">
       graph = new Graph("chart1", {
