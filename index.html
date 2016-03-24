@@ -42,9 +42,12 @@
         circle.selected {
           fill: #ff7f0e;
           stroke: #ff7f0e; }
-        circle:hover {
+        circle:hover, .line:hover {
           fill: #ff7f0e;
-          stroke: #707f0e; }
+          stroke: #707f0e;
+          opacity: 1;
+          fill-opacity: 1;
+        }
         circle.selected:hover {
           fill: #ff7f0e;
           stroke: #ff7f0e; }
@@ -67,6 +70,7 @@
       <ul class="legendDescriptionList">
         <li class="legendDescription">Data points sizes are determined by their RMs.</li>
         <li class="legendDescription">Graph is initially scaled to fit all the datapoints within view.</li>
+        <li class="legendDescription">Scroll to zoom in.</li>
         <li class="legendDescription">Click on an axis and drag to scale that axis.</li>
         <li class="legendDescription">Click and drag on graph to move graph around.</li>
         <li class="legendDescription">Hover over a point to see more details.</li>
