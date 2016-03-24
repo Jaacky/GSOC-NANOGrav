@@ -74,7 +74,7 @@ Graph = function(elemid, options) {
   // x-scale
   this.x = d3.scale.linear()
       .domain([this.options.xmin, this.options.xmax])
-      .range([0, this.size.width]);
+      .range([10, this.size.width-10]);
 
   // drag x-axis logic
   this.downx = Math.NaN;

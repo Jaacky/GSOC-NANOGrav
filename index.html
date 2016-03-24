@@ -9,6 +9,14 @@
     <style type="text/css">
       body { font: 13px sans-serif; }
       rect { fill: #fff; }
+      p { margin: 0; }
+      #legend { margin-top: 10px; width: 25%; border: 1px solid black; padding: 15px;}
+      .legendDescription { margin-top: 5px; }
+      .legendItem { width: 100%; }
+      .legendItem p { padding: 5px 0px 5px 5px; }
+      #binary { background-color: rgba(154, 205, 50, 0.6); }
+      #not_binary {background-color: rgba(70, 130, 180, 0.6); }
+
       ul {
         list-style-type: none;
         margin: 0.5em 0em 0.5em 0em;
@@ -52,6 +60,15 @@
   </head>
   <body>
     <div id="chart1" class="chart"></div>
+    <div id="legend">
+      <div class="legendItem" id="binary"><p>Binary</p></div>
+      <div class="legendItem" id="not_binary"><p>Not binary</p></div>
+      <p class="legendDescription">Data points sizes are determined by their RMs.</p>
+      <p class="legendDescription">Graph is initially scaled to fit all the datapoints within view.</p>
+      <p class="legendDescription">Click on an axis and drag to scale that axis.</p>
+      <p class="legendDescription">Click and drag on graph to move graph around.</p>
+      <p class="legendDescription">Hover over a point to see more details.</p>
+    </div>
     <script type="text/javascript">
       graph = new Graph("chart1", {
           "xmax": 60, "xmin": 0,
